@@ -19,6 +19,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.data.Repository
+import com.example.androiddevchallenge.model.Pet
 import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.example.androiddevchallenge.ui.theme.bgDark
 import com.example.androiddevchallenge.ui.theme.bgLight
@@ -60,11 +62,16 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun MyApp() {
 
-    Surface {
+    Surface(
+        color = MaterialTheme.colors.surface,
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+    ) {
         var text = remember { mutableStateOf(TextFieldValue("Search")) }
-        Column( horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-            Spacer(modifier = Modifier.padding(top = 52.dp))
+            Spacer(modifier = Modifier.height(72.dp))
 
             OutlinedTextField(
                 value = text.value,
@@ -83,58 +90,132 @@ fun MyApp() {
                 text = "Choose Your Pet",
                 style = TextStyle(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 30.sp
+                    fontSize = 40.sp
                 )
             )
             Text(
                 text = "We have largest selection of pets.",
                 style = TextStyle(
                     fontSize = 18.sp,
-                    color = Color.Cyan
                 )
             )
             LazyColumn {
-                items(Repository.getFakePets().size, itemContent = {
-                    SinglePet()
+                val pets = Repository.getFakePets()
+                items(pets.size, itemContent = { index ->
+
+                    Card(modifier = Modifier.fillMaxWidth().wrapContentWidth().padding(start = 16.dp,end = 16.dp,top = 6.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth()
+                                .clickable {
+
+                                },
+                        ) {
+                            Image(
+                                painter = painterResource(pets[index].avatar),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .height(100.dp)
+                                    .width(100.dp)
+                                    .padding(12.dp),
+                                contentScale = ContentScale.Inside
+                            )
+
+                            Column(
+                                horizontalAlignment = Alignment.Start,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .height(100.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "${pets[index].name}",
+                                    style = TextStyle(
+                                        fontSize = 20.sp,
+                                    )
+                                )
+                                Row(Modifier.fillMaxWidth()) {
+                                    Text(
+                                        text = "Average Size: ",
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                        )
+                                    )
+                                    Text(
+                                        text = "${pets[index].averageSize}",
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                        )
+                                    )
+                                }
+
+                                Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                                    Text(
+                                        text = "Life Expectancy: ",
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                        )
+                                    )
+                                    Text(
+                                        text = "${pets[index].lifeExpectancy}",
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                        )
+                                    )
+                                }
+                                Row(horizontalArrangement = Arrangement.SpaceAround) {
+                                    Text(
+                                        text = "Age: ",
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                        )
+                                    )
+                                    Text(
+                                        text = "${pets[index].age}",
+                                        style = TextStyle(
+                                            fontSize = 14.sp,
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
                 })
+//            }
             }
         }
     }
 }
-
-@Preview("Light Theme", widthDp = 360, heightDp = 640)
+@Preview()
 @Composable
 fun LightPreview() {
     MyTheme {
         MyApp()
     }
 }
-//
-//@Preview("Dark Theme", widthDp = 360, heightDp = 640)
-//@Composable
-//fun DarkPreview() {
-//    MyTheme(darkTheme = true) {
-//        MyApp()
-//    }
-//}
 
+@Preview()
+@Composable
+fun DarkPreview() {
+    MyTheme(darkTheme = true) {
+        MyApp()
+    }
+}
 
 @Composable
-fun SinglePet() {
-    Card(
-        modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 12.dp)
-            .wrapContentHeight()
-            .fillMaxWidth(),
-        elevation = 4.dp,
-    ) {
+fun SinglePet(pet: Pet) {
+    Card(modifier = Modifier.fillMaxWidth().wrapContentWidth().padding(start = 16.dp,end = 16.dp,top = 6.dp)) {
         Row(
             modifier = Modifier
                 .wrapContentHeight()
                 .fillMaxWidth()
+                .clickable {
+
+                },
         ) {
             Image(
-                painter = painterResource(R.mipmap.pet_1),
+                painter = painterResource(pet.avatar),
                 contentDescription = null,
                 modifier = Modifier
                     .height(100.dp)
@@ -151,7 +232,7 @@ fun SinglePet() {
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Labordor Retreive",
+                    text = "${pet.name}",
                     style = TextStyle(
                         fontSize = 20.sp,
                     )
@@ -164,7 +245,7 @@ fun SinglePet() {
                         )
                     )
                     Text(
-                        text = "55-60 lb",
+                        text = "${pet.averageSize}",
                         style = TextStyle(
                             fontSize = 14.sp,
                         )
@@ -179,7 +260,7 @@ fun SinglePet() {
                         )
                     )
                     Text(
-                        text = "12 years",
+                        text = "${pet.lifeExpectancy}",
                         style = TextStyle(
                             fontSize = 14.sp,
                         )
@@ -193,7 +274,7 @@ fun SinglePet() {
                         )
                     )
                     Text(
-                        text = "2 Years",
+                        text = "${pet.age}",
                         style = TextStyle(
                             fontSize = 14.sp,
                         )
